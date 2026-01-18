@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  # MongoDB database
+  mongodb:
+    image: mongo:7.0
+    container_name: citizen-mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    environment:
+      - MONGO_INITDB_DATABASE=citizen_civic_ai
+    networks:
+      - citizen-network
+
+  # Backend API
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: citizen-backend
+    ports:
+      - "8000:8000"
+    environment:
+      - MONGODB_URL=mongodb://mongodb:27017
+      - MONGODB_DB_NAME=citizen_civic_ai
+      - DEBUG=true
+    depends_on:
+      - mongodb
+    volumes:
+      - ./backend/uploads:/app/uploads
+      - ./backend/data:/app/data
+    networks:
+      - citizen-network
+    restart: unless-stopped
+
+volumes:
+  mongodb_data:
+
+networks:
+  citizen-network:
+    driver: bridge
