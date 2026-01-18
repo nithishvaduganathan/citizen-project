@@ -41,11 +41,12 @@ class Settings(BaseSettings):
     ALLOWED_IMAGE_TYPES: List[str] = ["image/jpeg", "image/png", "image/webp"]
     
     # Security
-    SECRET_KEY: str = "your-secret-key-change-in-production"
+    # IMPORTANT: SECRET_KEY must be set in production via environment variable
+    SECRET_KEY: str = ""
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24  # 24 hours
     
-    # CORS
-    CORS_ORIGINS: List[str] = ["*"]
+    # CORS - IMPORTANT: Restrict to specific domains in production
+    CORS_ORIGINS: List[str] = ["http://localhost:3000"]
     
     # Rate limiting
     RATE_LIMIT_PER_MINUTE: int = 60

@@ -181,11 +181,7 @@ class _WelcomeCard extends StatelessWidget {
                   const SizedBox(height: 8),
                   StatusChip(
                     label: user.role.name.toUpperCase(),
-                    color: user.isAdmin
-                        ? AppColors.error
-                        : user.isAuthority
-                            ? AppColors.warning
-                            : AppColors.primary,
+                    color: _getRoleColor(user),
                   ),
                 ],
               ),
@@ -199,6 +195,16 @@ class _WelcomeCard extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Color _getRoleColor(dynamic user) {
+    if (user.isAdmin) {
+      return AppColors.error;
+    }
+    if (user.isAuthority) {
+      return AppColors.warning;
+    }
+    return AppColors.primary;
   }
 }
 

@@ -3,6 +3,7 @@ Security utilities for authentication and authorization
 """
 from datetime import datetime, timedelta
 from typing import Optional, Dict, Any
+import secrets
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 from fastapi import HTTPException, status, Depends
@@ -20,6 +21,19 @@ security = HTTPBearer()
 
 # Firebase initialization flag
 _firebase_initialized = False
+
+
+def get_secret_key() -> str:
+    """Get secret key for JWT encoding.
+    
+    If SECRET_KEY is not set in environment, generates a random key for development.
+    WARNING: In production, always set SECRET_KEY via environment variable.
+    """
+    if settings.SECRET_KEY:
+        return settings.SECRET_KEY
+    # Generate a random key for development only
+    # This will change on each restart, invalidating existing tokens
+    return secrets.token_urlsafe(32)
 
 
 def init_firebase():
@@ -65,14 +79,14 @@ def create_access_token(data: Dict[str, Any], expires_delta: Optional[timedelta]
         expire = datetime.utcnow() + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     
     to_encode.update({"exp": expire})
-    encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm="HS256")
+    encoded_jwt = jwt.encode(to_encode, get_secret_key(), algorithm="HS256")
     return encoded_jwt
 
 
 def decode_access_token(token: str) -> Optional[Dict[str, Any]]:
     """Decode and verify a JWT access token"""
     try:
-        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=["HS256"])
+        payload = jwt.decode(token, get_secret_key(), algorithms=["HS256"])
         return payload
     except JWTError:
         return None
